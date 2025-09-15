@@ -12,13 +12,9 @@ app.use(express.urlencoded({ extended: true }));
 // Health check endpoint for Railway
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    services: {
-      frontend: 'running',
-      backend: 'running'
-    }
+    status: 'ok',
+    message: '3D Viewer Express Server is running!',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -93,11 +89,17 @@ const startBackend = () => {
 
 // Start the Express server first
 let backendProcess;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Frontend server running on port ${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Frontend server running on port ${PORT}`);
+  console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
   
   // Start backend after frontend is ready
   backendProcess = startBackend();
+});
+
+server.on('error', (err) => {
+  console.error('❌ Express server error:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown
