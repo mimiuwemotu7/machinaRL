@@ -98,25 +98,18 @@ export class SimulationGoalService {
     }
   ): Promise<AIResponse<ParsedSimulation>> {
     try {
-      console.log('🎯 [SimulationGoalService] Parsing simulation description...');
-      console.log('📝 Name:', simulationName);
-      console.log('📝 Description:', description);
-      console.log('🎮 Scene Context:', sceneContext);
 
       // Check if we can use AI API for parsing
       const apiStatus = getAPIStatus(this.apiConfig);
       
       if (apiStatus.hasValidKey && apiStatus.provider === 'openai') {
-        console.log('🤖 [SimulationGoalService] Using OpenAI for goal parsing...');
         return await this.parseWithAI(simulationName, description, sceneContext);
       } else {
-        console.log('🔧 [SimulationGoalService] Using local parsing fallback...');
         return await this.parseLocally(simulationName, description, sceneContext);
       }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ [SimulationGoalService] Parsing failed:', errorMessage);
       
       return {
         success: false,
@@ -155,7 +148,6 @@ export class SimulationGoalService {
       };
 
     } catch (error) {
-      console.error('❌ [SimulationGoalService] AI parsing failed:', error);
       // Fallback to local parsing
       return await this.parseLocally(simulationName, description, sceneContext);
     }
@@ -170,7 +162,6 @@ export class SimulationGoalService {
     sceneContext?: any
   ): Promise<AIResponse<ParsedSimulation>> {
     try {
-      console.log('🔧 [SimulationGoalService] Using local parsing...');
 
       // Basic keyword-based parsing
       const objectives = this.extractObjectivesFromDescription(description);
@@ -358,7 +349,6 @@ IMPORTANT:
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       return JSON.parse(cleanContent);
     } catch (error) {
-      console.error('❌ [SimulationGoalService] Failed to parse AI response:', error);
       throw new Error('Invalid JSON response from AI service');
     }
   }

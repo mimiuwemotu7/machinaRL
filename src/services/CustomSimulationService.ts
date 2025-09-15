@@ -44,10 +44,7 @@ class CustomSimulationService {
     onMovementCommand: (command: string, agentId: 'p1' | 'p2') => void,
     onSimulationComplete: (result: SimulationResult) => void
   ): Promise<void> {
-    console.log('🚀 [CustomSimulationService] Starting simulation:', simulationName);
-    
     if (this.isRunning) {
-      console.log('⚠️ [CustomSimulationService] Simulation already running, stopping previous one');
       this.stopSimulation();
     }
 
@@ -55,13 +52,10 @@ class CustomSimulationService {
 
     try {
       // Parse the simulation goal
-      console.log('🔍 [CustomSimulationService] Parsing simulation goal...');
       const simulationResponse = await this.goalService.parseSimulationDescription(simulationName, simulationGoal);
       this.currentSimulation = simulationResponse.data;
-      console.log('✅ [CustomSimulationService] Parsed simulation');
 
       // Generate system prompt - Direct approach
-      console.log('🔍 [CustomSimulationService] Creating system prompt...');
       
       this.currentSystemPrompt = {
         id: 'custom-simulation-prompt',
@@ -115,8 +109,6 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
         },
         createdAt: Date.now()
       };
-      
-      console.log('✅ [CustomSimulationService] System prompt created');
 
       // Initialize simulation state
       this.simulationState = {
@@ -130,7 +122,6 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
       this.startSimulationLoop(onAIMessage, onMovementCommand, onSimulationComplete);
 
     } catch (error) {
-      console.error('❌ [CustomSimulationService] Failed to start simulation:', error);
       this.isRunning = false;
       throw error;
     }
@@ -141,8 +132,6 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
     onMovementCommand: (command: string, agentId: 'p1' | 'p2') => void,
     onSimulationComplete: (result: SimulationResult) => void
   ) {
-    console.log('🔄 [CustomSimulationService] Starting simulation loop');
-    
     this.intervalRef = setInterval(async () => {
       if (!this.isRunning || !this.currentSystemPrompt || !this.currentSimulation) {
         return;
@@ -159,30 +148,25 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
         const currentAgent = this.currentSender;
         const chatService = currentAgent === 'p1' ? this.p1ChatService : this.p2ChatService;
         
-        console.log(`🤖 [CustomSimulationService] Getting AI response from ${currentAgent.toUpperCase()}...`);
         const response = await chatService.processChatMessage(prompt, `${currentAgent}-custom-simulation`);
         
         if (response && response.success && response.data && response.data.message) {
           const messageContent = response.data.message.content;
-          console.log(`✅ [CustomSimulationService] ${currentAgent.toUpperCase()} AI response:`, messageContent);
           onAIMessage(messageContent, currentAgent);
           
           // Parse movement commands
           const movementCommands = this.parseMovementCommands(messageContent);
           movementCommands.forEach(command => {
-            console.log(`🎮 [CustomSimulationService] Executing ${currentAgent.toUpperCase()} movement command:`, command);
             onMovementCommand(command, currentAgent);
           });
           
           // Switch to the other agent for next cycle
           this.currentSender = currentAgent === 'p1' ? 'p2' : 'p1';
-          console.log(`🔄 [CustomSimulationService] Switching to ${this.currentSender.toUpperCase()} for next cycle`);
           
           // Update simulation progress
           this.updateSimulationProgress();
         }
       } catch (error) {
-        console.error('❌ [CustomSimulationService] Error in simulation loop:', error);
         this.stopSimulation();
         onSimulationComplete({
           success: false,
@@ -206,7 +190,6 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
               const absPos = mesh.getAbsolutePosition();
               position = { x: absPos.x, y: absPos.y, z: absPos.z };
             } catch (error) {
-              console.warn(`⚠️ [CustomSimulationService] Error getting absolute position for ${mesh.name}:`, error);
               if (mesh.position) {
                 position = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
               }
@@ -222,9 +205,6 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
           };
         }).filter((mesh: any) => mesh.name && mesh.name !== 'hdrSkyBox');
         
-        console.log(`🔍 [CustomSimulationService] Gathered ${meshes.length} meshes with positions:`, 
-          meshes.map((m: any) => `${m.name}: ${m.position ? `(${m.position.x.toFixed(1)}, ${m.position.y.toFixed(1)}, ${m.position.z.toFixed(1)})` : 'no position'}`));
-        
         return {
           meshes: meshes,
           cameras: scene.cameras ? scene.cameras.map((camera: any) => ({
@@ -234,7 +214,7 @@ Analyze the current scene, identify obstacles, and provide your next strategic a
         };
       }
     } catch (error) {
-      console.error('❌ [CustomSimulationService] Error getting scene data:', error);
+      // Error getting scene data
     }
     return { meshes: [], cameras: [] };
   }
@@ -375,7 +355,6 @@ You are controlling the ${currentAgent === 'p1' ? 'red' : 'blue'} cube. Analyze 
   }
 
   stopSimulation(): void {
-    console.log('🛑 [CustomSimulationService] Stopping simulation');
     this.isRunning = false;
     
     if (this.intervalRef) {

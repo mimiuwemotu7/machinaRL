@@ -14,8 +14,6 @@ import { SimulationEvent } from './ai/services/SimulationExecutionEngine';
 import { Globe, FileText, Play, Pause, Square, RotateCcw } from 'lucide-react';
 import customSimulationService from './services/CustomSimulationService';
 
-// Debug: Check if CustomSimulationService is imported correctly
-console.log('🔍 [App] CustomSimulationService import check:', typeof customSimulationService);
 
 interface ModelOption {
   id: string;
@@ -99,7 +97,7 @@ function App() {
 
     // Subscribe to simulation events
     simulationIntegrationService.subscribeToEvents('app-component', (event: SimulationEvent) => {
-      console.log('🎬 Simulation event:', event.type, event.message);
+      // Handle simulation events
     });
 
     // Cleanup on unmount
@@ -137,11 +135,7 @@ function App() {
   const isAdminMode = useCallback(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const isAdmin = urlParams.get('admin') === 'true';
-    if (isAdmin) {
-      console.log('🔧 [App] Admin mode detected - Client Monitor will be visible');
-    } else {
-      console.log('🔒 [App] Regular mode - Client Monitor hidden');
-    }
+    // Admin mode detection
     return isAdmin;
   }, []);
 
@@ -193,10 +187,6 @@ function App() {
     }
 
     try {
-      console.log('🚀 Starting custom simulation:', simulationName);
-      console.log('🔍 Current page:', currentPage);
-      console.log('🔍 Current mode:', currentMode);
-      console.log('🔍 CustomSimulationService available:', typeof customSimulationService);
       setIsSimulationRunning(true);
 
       // Use the custom simulation service directly
@@ -213,10 +203,7 @@ function App() {
         handleSimulationComplete
       );
 
-      console.log('✅ Custom simulation started successfully');
-
     } catch (error) {
-      console.error('❌ Simulation execution failed:', error);
       alert(`Simulation failed: ${error}`);
       setIsSimulationRunning(false);
     }
@@ -224,7 +211,6 @@ function App() {
 
   // Handle simulation completion
   const handleSimulationComplete = useCallback((result: any) => {
-    console.log('🏁 Custom simulation completed:', result);
     setIsSimulationRunning(false);
     
     if (result.success) {
@@ -251,7 +237,6 @@ function App() {
         case 'resume':
         case 'reset':
           // Custom simulation doesn't support these actions yet
-          console.log(`Custom simulation doesn't support ${action} yet`);
           break;
       }
     } else {
@@ -498,7 +483,6 @@ function App() {
             onAIMessage={handleAIMessage}
             onMovementCommand={handleMovementCommand}
             onMasterClientChange={(isMaster, id) => {
-              console.log('🔍 [App] Master client status changed:', { isMaster, id });
               setIsMasterClient(isMaster);
               setClientId(id);
             }}

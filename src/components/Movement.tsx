@@ -162,7 +162,6 @@ const Movement: React.FC<MovementProps> = ({
         activePhysics.body.setLinearVelocity(newVelocity);
       } catch (error) {
         // Physics body was disposed or is invalid, skip this update
-        console.log('⚠️ Physics body disposed or invalid, skipping movement update');
         return;
       }
     };

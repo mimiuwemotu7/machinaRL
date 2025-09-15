@@ -273,11 +273,8 @@ Please provide a helpful response:`;
     
     // If we have a real API configured, use it instead of simulation
     if (apiStatus.hasValidKey && apiStatus.provider !== 'mock') {
-      console.log('🌐 [ChatService] Using real AI API:', apiStatus.provider);
       return await this.callRealAI(prompt, context, apiConfig);
     }
-    
-    console.log('🎭 [ChatService] Using mock AI response');
     // Simulate processing delay for mock responses
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
@@ -339,9 +336,7 @@ Please provide a helpful response:`;
       
       // Only use OpenAI for now
       if (provider === 'openai') {
-        console.log('🔵 [ChatService] Calling OpenAI API...');
         const result = await this.callOpenAI(prompt, apiConfig.config.openai);
-        console.log('✅ [ChatService] OpenAI API call successful');
         return result;
       }
       
@@ -352,12 +347,10 @@ Please provide a helpful response:`;
       //   return await this.callCustomAPI(prompt, apiConfig.config.custom);
       
       // If not OpenAI, fall back to mock
-      console.warn(`❌ [ChatService] Provider '${provider}' not supported, falling back to mock`);
       throw new Error(`Only OpenAI is currently supported. Provider '${provider}' is disabled.`);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ [ChatService] Real AI call failed:', errorMessage);
       
       // Fallback to mock response
       return {
@@ -389,7 +382,6 @@ Please provide a helpful response:`;
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ [ChatService] OpenAI API error:', response.status, response.statusText, errorText);
       throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
@@ -535,20 +527,16 @@ Please provide a helpful response:`;
     context?: ChatContext
   ): Promise<{ content: string; confidence: number }> {
     try {
-      console.log('🎮 [ChatService] Processing movement command with OpenAI:', message);
-      
       // Check if we have OpenAI configured
       const apiConfig = getAPIConfig();
       const apiStatus = getAPIStatus(apiConfig);
       
       if (!apiStatus.hasValidKey || apiStatus.provider !== 'openai') {
-        console.log('⚠️ [ChatService] OpenAI not configured, falling back to local generation');
         return await this.handleMovementCommandLocal(message, context);
       }
 
       // Use OpenAI to generate movement code
       const movementPrompt = this.buildMovementPrompt(message, context);
-      console.log('🤖 [ChatService] Sending movement prompt to OpenAI...');
       
       const openaiResponse = await this.callOpenAI(movementPrompt, apiConfig.config.openai);
       
@@ -602,10 +590,8 @@ Please provide a helpful response:`;
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ [ChatService] OpenAI movement command handling failed:', errorMessage);
       
       // Fallback to local generation
-      console.log('🔄 [ChatService] Falling back to local movement code generation...');
       return await this.handleMovementCommandLocal(message, context);
     }
   }
@@ -671,7 +657,6 @@ Generate the appropriate response and JavaScript code for the user's command:`;
     context?: ChatContext
   ): Promise<{ content: string; confidence: number }> {
     try {
-      console.log('🎮 [ChatService] Processing movement command locally:', message);
       
       // Get movement code service
       const movementService = getMovementCodeService();
@@ -696,7 +681,6 @@ Generate the appropriate response and JavaScript code for the user's command:`;
       const { code, description, safetyChecks } = codeResponse.data;
       
       // Execute the generated code
-      console.log('⚡ [ChatService] Executing local movement code...');
       const executionService = getCodeExecutionService();
       
       // Create execution context with current scene state
@@ -710,13 +694,11 @@ Generate the appropriate response and JavaScript code for the user's command:`;
       const executionResult = await executionService.executeCodeSafely(code, executionContext);
       
       if (executionResult.success) {
-        console.log('✅ [ChatService] Local movement code executed successfully');
         return {
           content: `🎮 ${description}! I've executed the movement command using local code generation. The code ran successfully in ${executionResult.executionTime}ms.\n\n**Generated Code:**\n\`\`\`javascript\n${code}\n\`\`\``,
           confidence: 0.9
         };
       } else {
-        console.log('❌ [ChatService] Local movement code execution failed:', executionResult.error);
         return {
           content: `I generated the movement code locally but couldn't execute it: ${executionResult.error}. The code was: \`\`\`javascript\n${code}\n\`\`\``,
           confidence: 0.7
@@ -724,7 +706,6 @@ Generate the appropriate response and JavaScript code for the user's command:`;
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ [ChatService] Local movement command handling failed:', errorMessage);
       
       return {
         content: `I encountered an error while processing your movement command: ${errorMessage}. Please try again with a simpler command like "move the blue cube forward".`,

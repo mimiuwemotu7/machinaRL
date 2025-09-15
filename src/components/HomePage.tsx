@@ -81,7 +81,6 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigateToSimulation, onNavigateT
         <button 
           className="admin-btn"
           onClick={() => {
-            console.log('🔧 Admin button clicked - showing BackendUI');
             setShowBackendUI(true);
           }}
           title="Open Backend Admin Dashboard"
