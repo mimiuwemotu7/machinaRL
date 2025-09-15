@@ -6,11 +6,9 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY server/package*.json ./server/
 
 # Install dependencies
 RUN npm install
-RUN cd server && npm install
 
 # Copy source code
 COPY . .
@@ -18,9 +16,11 @@ COPY . .
 # Build React app
 RUN npm run build
 
-# Expose port
-EXPOSE 3001
+# Install serve globally
+RUN npm install -g serve
 
-# Start the server
-WORKDIR /app/server
-CMD ["npm", "start"]
+# Expose port (Railway will set PORT env var)
+EXPOSE 3000
+
+# Start the server using serve with PORT environment variable
+CMD ["sh", "-c", "serve -s build -l ${PORT:-3000}"]

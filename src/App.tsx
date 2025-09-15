@@ -8,6 +8,7 @@ import BackendUI from './components/BackendUI';
 import HomePage from './components/HomePage';
 import MeshTracker from './components/MeshTracker';
 import AILiveMode from './components/AILiveMode';
+import CustomSimulation from './components/CustomSimulation';
 import MasterClientMonitor from './components/MasterClientMonitor';
 import { getSimulationIntegrationService, SimulationProgress } from './ai/services/SimulationIntegrationService';
 import { SimulationEvent } from './ai/services/SimulationExecutionEngine';
@@ -58,7 +59,7 @@ function App() {
   const [showMovementTest, setShowMovementTest] = useState(false);
   const [showBackendUI, setShowBackendUI] = useState(false);
   const [showMeshTracker, setShowMeshTracker] = useState(false);
-  const [currentMode, setCurrentMode] = useState<'custom' | 'live'>('custom');
+  const [currentMode, setCurrentMode] = useState<'custom' | 'live'>('custom' as 'custom' | 'live');
   const [currentPage, setCurrentPage] = useState<'home' | 'simulation' | 'custom-simulation'>('home');
   const [babylonScene, setBabylonScene] = useState<any>(null);
   const [aiLiveModeActive, setAiLiveModeActive] = useState(false);
@@ -172,59 +173,81 @@ function App() {
     }
 
     try {
-      console.log('🚀 Starting simulation:', simulationName);
+      console.log('🚀 Starting custom simulation:', simulationName);
       setIsSimulationRunning(true);
 
-      const sceneContext = {
-        sceneId: selectedModel.id,
-        availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
-        sceneType: selectedModel.name
-      };
-
-      const result = await simulationIntegrationService.startSimulation(
-        simulationName,
-        simulationGoal,
-        sceneContext
-      );
-
-      console.log('🏁 Simulation completed:', result);
-      
-      if (result.success) {
-        alert(`Simulation completed successfully! Progress: ${result.finalProgress.toFixed(1)}%`);
+      // Start the custom simulation using the global function
+      if ((window as any).startCustomSimulation) {
+        (window as any).startCustomSimulation();
       } else {
-        alert(`Simulation failed: ${result.completionReason}`);
+        throw new Error('Custom simulation not available');
       }
 
     } catch (error) {
       console.error('❌ Simulation execution failed:', error);
       alert(`Simulation failed: ${error}`);
-    } finally {
       setIsSimulationRunning(false);
     }
-  }, [simulationName, simulationGoal, selectedModel, viewerState.screenMeshes, simulationIntegrationService]);
+  }, [simulationName, simulationGoal]);
+
+  // Handle simulation completion
+  const handleSimulationComplete = useCallback((result: any) => {
+    console.log('🏁 Custom simulation completed:', result);
+    setIsSimulationRunning(false);
+    
+    if (result.success) {
+      alert(`Simulation completed successfully! Progress: ${result.finalProgress.toFixed(1)}%`);
+    } else {
+      alert(`Simulation failed: ${result.completionReason}`);
+    }
+  }, []);
 
   // Handle simulation controls
   const handleSimulationControl = useCallback((action: 'start' | 'pause' | 'resume' | 'stop' | 'reset') => {
-    const controls = simulationIntegrationService.getControls();
-    
-    switch (action) {
-      case 'start':
-        controls.start();
-        break;
-      case 'pause':
-        controls.pause();
-        break;
-      case 'resume':
-        controls.resume();
-        break;
-      case 'stop':
-        controls.stop();
-        break;
-      case 'reset':
-        controls.reset();
-        break;
+    if (currentMode === 'custom') {
+      // Handle custom simulation controls
+      switch (action) {
+        case 'start':
+          if ((window as any).startCustomSimulation) {
+            (window as any).startCustomSimulation();
+          }
+          break;
+        case 'stop':
+          if ((window as any).stopCustomSimulation) {
+            (window as any).stopCustomSimulation();
+          }
+          setIsSimulationRunning(false);
+          break;
+        case 'pause':
+        case 'resume':
+        case 'reset':
+          // Custom simulation doesn't support these actions yet
+          console.log(`Custom simulation doesn't support ${action} yet`);
+          break;
+      }
+    } else {
+      // Handle live simulation controls
+      const controls = simulationIntegrationService.getControls();
+      
+      switch (action) {
+        case 'start':
+          controls.start();
+          break;
+        case 'pause':
+          controls.pause();
+          break;
+        case 'resume':
+          controls.resume();
+          break;
+        case 'stop':
+          controls.stop();
+          break;
+        case 'reset':
+          controls.reset();
+          break;
+      }
     }
-  }, [simulationIntegrationService]);
+  }, [currentMode, simulationIntegrationService]);
 
   // Helper function to get the dynamic admin URL
   const getAdminURL = () => {
@@ -451,6 +474,23 @@ function App() {
               setClientId(id);
             }}
           />
+          
+          {/* Custom Simulation */}
+          {(currentMode as string) === 'custom' && (
+            <CustomSimulation 
+              isActive={true}
+              simulationName={simulationName}
+              simulationGoal={simulationGoal}
+              sceneContext={{
+                sceneId: selectedModel.id,
+                availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
+                sceneType: selectedModel.name
+              }}
+              onAIMessage={handleAIMessage}
+              onMovementCommand={handleMovementCommand}
+              onSimulationComplete={handleSimulationComplete}
+            />
+          )}
           
           {/* Mesh Tracker Overlay */}
           <MeshTracker 
