@@ -25,9 +25,6 @@ app.get('/api/health', (req, res) => {
 // AI API endpoints - proxy to the backend server
 app.use('/api/ai', (req, res) => {
   // Forward AI requests to the backend server
-  const backendUrl = `http://localhost:3001${req.path}`;
-  
-  // Simple proxy implementation
   const http = require('http');
   const options = {
     hostname: 'localhost',
@@ -51,6 +48,19 @@ app.use('/api/ai', (req, res) => {
     proxyReq.write(JSON.stringify(req.body));
   }
   proxyReq.end();
+});
+
+// Backend server status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    message: "3D Viewer AI Server is running!",
+    status: "active",
+    timestamp: new Date().toISOString(),
+    services: {
+      frontend: 'running',
+      backend: 'running'
+    }
+  });
 });
 
 // Serve static files from the React app build
@@ -81,23 +91,24 @@ const startBackend = () => {
   return backend;
 };
 
-// Start both servers
-const backendProcess = startBackend();
-
+// Start the Express server first
+let backendProcess;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Frontend server running on port ${PORT}`);
-  console.log(`AI backend server starting on port 3001`);
+  
+  // Start backend after frontend is ready
+  backendProcess = startBackend();
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('Shutting down servers...');
-  backendProcess.kill();
+  if (backendProcess) backendProcess.kill();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   console.log('Shutting down servers...');
-  backendProcess.kill();
+  if (backendProcess) backendProcess.kill();
   process.exit(0);
 });
