@@ -13,6 +13,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Create server directory if it doesn't exist (for Docker builds)
+RUN mkdir -p server
+
 # Build React app
 RUN npm run build
 
