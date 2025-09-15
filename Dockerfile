@@ -19,11 +19,11 @@ RUN mkdir -p server
 # Build React app
 RUN npm run build
 
-# Install serve globally
-RUN npm install -g serve
+# Install express for the server
+RUN npm install express
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 3000
 
-# Start the server using serve with PORT environment variable
-CMD ["sh", "-c", "serve -s build -l ${PORT:-3000}"]
+# Start the Express server
+CMD ["node", "server.js"]
