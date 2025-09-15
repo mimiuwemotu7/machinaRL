@@ -22,4 +22,5 @@ RUN npm run build
 EXPOSE 3001
 
 # Start the server
-CMD ["cd", "server", "&&", "npm", "start"]
+WORKDIR /app/server
+CMD ["npm", "start"]
