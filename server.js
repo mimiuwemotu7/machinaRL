@@ -1,17 +1,56 @@
 const express = require('express');
 const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const { spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint for Railway
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    services: {
+      frontend: 'running',
+      backend: 'running'
+    }
   });
+});
+
+// AI API endpoints - proxy to the backend server
+app.use('/api/ai', (req, res) => {
+  // Forward AI requests to the backend server
+  const backendUrl = `http://localhost:3001${req.path}`;
+  
+  // Simple proxy implementation
+  const http = require('http');
+  const options = {
+    hostname: 'localhost',
+    port: 3001,
+    path: req.path,
+    method: req.method,
+    headers: req.headers
+  };
+  
+  const proxyReq = http.request(options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+  
+  proxyReq.on('error', (err) => {
+    console.error('Backend proxy error:', err);
+    res.status(503).json({ error: 'Backend service unavailable' });
+  });
+  
+  if (req.method !== 'GET') {
+    proxyReq.write(JSON.stringify(req.body));
+  }
+  proxyReq.end();
 });
 
 // Serve static files from the React app build
@@ -22,6 +61,43 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+// Start the backend server
+const startBackend = () => {
+  console.log('Starting AI backend server...');
+  const backend = spawn('node', ['--experimental-modules', 'server/index.js'], {
+    cwd: __dirname,
+    stdio: 'inherit',
+    env: { ...process.env, PORT: 3001, NODE_ENV: 'production' }
+  });
+  
+  backend.on('error', (err) => {
+    console.error('Backend server error:', err);
+  });
+  
+  backend.on('exit', (code) => {
+    console.log(`Backend server exited with code ${code}`);
+  });
+  
+  return backend;
+};
+
+// Start both servers
+const backendProcess = startBackend();
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Frontend server running on port ${PORT}`);
+  console.log(`AI backend server starting on port 3001`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('Shutting down servers...');
+  backendProcess.kill();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('Shutting down servers...');
+  backendProcess.kill();
+  process.exit(0);
 });

@@ -4,14 +4,14 @@ import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAIZKwePnYrXoAEmpK9sExT4p7AmwIABLk",
-  authDomain: "machina-9a618.firebaseapp.com",
-  databaseURL: "https://machina-9a618-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "machina-9a618",
-  storageBucket: "machina-9a618.firebasestorage.app",
-  messagingSenderId: "1073130718452",
-  appId: "1:1073130718452:web:c2987806c8c1aa6456caa1",
-  measurementId: "G-ZRLNNDRYN9"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyAIZKwePnYrXoAEmpK9sExT4p7AmwIABLk",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "machina-9a618.firebaseapp.com",
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL || "https://machina-9a618-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "machina-9a618",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "machina-9a618.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "1073130718452",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:1073130718452:web:c2987806c8c1aa6456caa1",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-ZRLNNDRYN9"
 };
 
 // Initialize Firebase

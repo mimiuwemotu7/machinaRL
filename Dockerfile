@@ -22,8 +22,11 @@ RUN npm run build
 # Install express for the server
 RUN npm install express
 
+# Install server dependencies
+RUN if [ -d "server" ]; then cd server && npm install; fi
+
 # Expose port (Railway will set PORT env var)
 EXPOSE 3000
 
-# Start the Express server
+# Start the Express server (which will also start the AI backend)
 CMD ["node", "server.js"]
