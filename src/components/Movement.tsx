@@ -24,6 +24,11 @@ const Movement: React.FC<MovementProps> = ({
   // Handle keyboard input for free camera and cube movement
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if event and event.key exist
+      if (!event || !event.key) {
+        return;
+      }
+      
       const key = event.key.toLowerCase();
       
       // Don't interfere if user is typing in an input field
@@ -51,6 +56,11 @@ const Movement: React.FC<MovementProps> = ({
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      // Check if event and event.key exist
+      if (!event || !event.key) {
+        return;
+      }
+      
       const key = event.key.toLowerCase();
       
       // Don't interfere if user is typing in an input field

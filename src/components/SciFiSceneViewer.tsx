@@ -343,6 +343,8 @@ const SciFiSceneViewer: React.FC<SciFiSceneViewerProps> = ({ width = 800, height
   // Handle keyboard input for free camera and cube movement
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
+      
       const key = event.key.toLowerCase();
       
       if (camMode === 'free') {
@@ -355,6 +357,8 @@ const SciFiSceneViewer: React.FC<SciFiSceneViewerProps> = ({ width = 800, height
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
+      
       const key = event.key.toLowerCase();
       setKeysPressed(prev => {
         const newSet = new Set(prev);

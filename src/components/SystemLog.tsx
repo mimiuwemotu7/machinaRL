@@ -40,7 +40,7 @@ const SystemLog: React.FC<SystemLogProps> = ({
   // Function to add external messages
   const addExternalMessage = useCallback((message: string, type: LogEntry['type'] = 'info', source: string = 'External') => {
     const newLog: LogEntry = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date(),
       type,
       message,
@@ -208,7 +208,7 @@ const SystemLog: React.FC<SystemLogProps> = ({
 
     // Add user message to logs
     const userLogEntry: LogEntry = {
-      id: `user-${Date.now()}`,
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date(),
       type: 'info',
       message: userMessage,
@@ -235,7 +235,7 @@ const SystemLog: React.FC<SystemLogProps> = ({
       if (response.success && response.data) {
         // Add AI response to logs
         const aiLogEntry: LogEntry = {
-          id: `ai-${Date.now()}`,
+          id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           timestamp: new Date(),
           type: 'ai',
           message: response.data.message.content,
@@ -250,7 +250,7 @@ const SystemLog: React.FC<SystemLogProps> = ({
       } else {
         // Add error to logs
         const errorLogEntry: LogEntry = {
-          id: `error-${Date.now()}`,
+          id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           timestamp: new Date(),
           type: 'error',
           message: `AI request failed: ${response.error}`,
@@ -265,7 +265,7 @@ const SystemLog: React.FC<SystemLogProps> = ({
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorLogEntry: LogEntry = {
-        id: `error-${Date.now()}`,
+        id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         timestamp: new Date(),
         type: 'error',
         message: `Chat error: ${errorMessage}`,

@@ -542,6 +542,8 @@ const SceneViewer: React.FC<SceneViewerProps> = ({ width = 800, height = 600, mo
   // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
+      
       const key = event.key.toLowerCase();
       if (['i', 'k', 'j', 'l', 'm'].includes(key)) {
         event.preventDefault();
@@ -550,6 +552,8 @@ const SceneViewer: React.FC<SceneViewerProps> = ({ width = 800, height = 600, mo
     };
     
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
+      
       const key = event.key.toLowerCase();
       if (['i', 'k', 'j', 'l', 'm'].includes(key)) {
         event.preventDefault();

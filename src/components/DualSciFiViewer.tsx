@@ -272,10 +272,12 @@ const DualSciFiViewer: React.FC<DualSciFiViewerProps> = ({ width = 800, height =
   // Handle keyboard input (used for cube movement)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
       setKeysPressed(prev => new Set(prev).add(event.key.toLowerCase()));
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (!event || !event.key) return;
       setKeysPressed(prev => {
         const newSet = new Set(prev);
         newSet.delete(event.key.toLowerCase());

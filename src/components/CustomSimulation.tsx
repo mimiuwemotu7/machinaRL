@@ -4,6 +4,9 @@ import { getAPIConfig } from '../ai/config/apiConfig';
 import { getSimulationGoalService, SimulationGoal, ParsedSimulation } from '../ai/services/SimulationGoalService';
 import { getSystemPromptGenerator, SystemPrompt } from '../ai/services/SystemPromptGenerator';
 
+// Debug: Log when the module is loaded
+console.log('🔍 [CustomSimulation] Module loaded');
+
 interface CustomSimulationProps {
   isActive: boolean;
   simulationName: string;
@@ -45,6 +48,7 @@ const CustomSimulation = React.forwardRef<any, CustomSimulationProps>(({
   onSimulationComplete
 }, ref) => {
   console.log('🎯 CustomSimulation component rendered with props:', { isActive, simulationName, simulationGoal });
+  console.log('🎯 CustomSimulation ref received:', ref);
   
   // Services
   const [chatService] = useState(() => new ChatService());
@@ -528,11 +532,26 @@ Please analyze the current situation and provide your next action.`;
   }, [isActive, isRunning]);
 
   // Expose methods via ref
-  React.useImperativeHandle(ref, () => ({
-    startSimulation,
-    stopSimulation,
-    isRunning
-  }), [startSimulation, stopSimulation, isRunning]);
+  React.useImperativeHandle(ref, () => {
+    console.log('🎯 CustomSimulation useImperativeHandle called, exposing methods:', {
+      startSimulation: typeof startSimulation,
+      stopSimulation: typeof stopSimulation,
+      isRunning
+    });
+    return {
+      startSimulation,
+      stopSimulation,
+      isRunning
+    };
+  }, [startSimulation, stopSimulation, isRunning]);
+
+  // Component mount/unmount logging
+  useEffect(() => {
+    console.log('🎯 CustomSimulation component mounted');
+    return () => {
+      console.log('🎯 CustomSimulation component unmounted');
+    };
+  }, []);
 
   // Expose control functions globally
   useEffect(() => {

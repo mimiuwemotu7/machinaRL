@@ -8,11 +8,14 @@ import BackendUI from './components/BackendUI';
 import HomePage from './components/HomePage';
 import MeshTracker from './components/MeshTracker';
 import AILiveMode from './components/AILiveMode';
-import CustomSimulation from './components/CustomSimulation';
 import MasterClientMonitor from './components/MasterClientMonitor';
 import { getSimulationIntegrationService, SimulationProgress } from './ai/services/SimulationIntegrationService';
 import { SimulationEvent } from './ai/services/SimulationExecutionEngine';
 import { Globe, FileText, Play, Pause, Square, RotateCcw } from 'lucide-react';
+import customSimulationService from './services/CustomSimulationService';
+
+// Debug: Check if CustomSimulationService is imported correctly
+console.log('🔍 [App] CustomSimulationService import check:', typeof customSimulationService);
 
 interface ModelOption {
   id: string;
@@ -85,7 +88,6 @@ function App() {
   const [simulationGoal, setSimulationGoal] = useState('');
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [simulationIntegrationService] = useState(() => getSimulationIntegrationService());
-  const customSimulationRef = useRef<any>(null);
 
   // Simulation event handlers
   useEffect(() => {
@@ -152,17 +154,34 @@ function App() {
 
   // Handle AI messages for system log
   const handleAIMessage = useCallback((message: string, agentId: 'p1' | 'p2' | 'system') => {
+    // Map agent IDs to display names
+    const agentNames = {
+      'p1': 'GROK',
+      'p2': 'ChatGPT',
+      'system': 'System'
+    };
+    
+    const displayName = agentNames[agentId] || agentId;
+    
     // Send message to system log
     if ((window as any).addSystemLogMessage) {
-      (window as any).addSystemLogMessage(message, 'ai', agentId);
+      (window as any).addSystemLogMessage(message, 'ai', displayName);
     }
   }, []);
 
   // Handle AI movement commands
   const handleMovementCommand = useCallback((command: string, agentId: 'p1' | 'p2') => {
+    // Map agent IDs to display names
+    const agentNames = {
+      'p1': 'GROK',
+      'p2': 'ChatGPT'
+    };
+    
+    const displayName = agentNames[agentId] || agentId;
+    
     // Log movement command
     if ((window as any).addSystemLogMessage) {
-      (window as any).addSystemLogMessage(`🎮 ${agentId.toUpperCase()}: ${command}`, 'info', agentId);
+      (window as any).addSystemLogMessage(`🎮 ${displayName}: ${command}`, 'info', displayName);
     }
   }, []);
 
@@ -175,38 +194,33 @@ function App() {
 
     try {
       console.log('🚀 Starting custom simulation:', simulationName);
-      console.log('🔍 Checking for startCustomSimulation function:', typeof (window as any).startCustomSimulation);
       console.log('🔍 Current page:', currentPage);
       console.log('🔍 Current mode:', currentMode);
+      console.log('🔍 CustomSimulationService available:', typeof customSimulationService);
       setIsSimulationRunning(true);
 
-      // Start the custom simulation using the global function
-      if ((window as any).startCustomSimulation) {
-        (window as any).startCustomSimulation();
-      } else if (customSimulationRef.current) {
-        // Fallback: use ref to call method directly
-        console.log('⚠️ Global function not available, using ref...');
-        customSimulationRef.current.startSimulation();
-      } else {
-        // Final fallback: try again after a short delay
-        console.log('⚠️ Both global function and ref not available, trying again...');
-        setTimeout(() => {
-          if ((window as any).startCustomSimulation) {
-            (window as any).startCustomSimulation();
-          } else if (customSimulationRef.current) {
-            customSimulationRef.current.startSimulation();
-          } else {
-            throw new Error('Custom simulation not available - neither global function nor ref found');
-          }
-        }, 100);
-      }
+      // Use the custom simulation service directly
+      await customSimulationService.startSimulation(
+        simulationName,
+        simulationGoal,
+        {
+          sceneId: selectedModel.id,
+          availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
+          sceneType: selectedModel.name
+        },
+        handleAIMessage,
+        handleMovementCommand,
+        handleSimulationComplete
+      );
+
+      console.log('✅ Custom simulation started successfully');
 
     } catch (error) {
       console.error('❌ Simulation execution failed:', error);
       alert(`Simulation failed: ${error}`);
       setIsSimulationRunning(false);
     }
-  }, [simulationName, simulationGoal, currentPage, currentMode]);
+  }, [simulationName, simulationGoal, currentPage, currentMode, selectedModel, viewerState]);
 
   // Handle simulation completion
   const handleSimulationComplete = useCallback((result: any) => {
@@ -214,7 +228,8 @@ function App() {
     setIsSimulationRunning(false);
     
     if (result.success) {
-      alert(`Simulation completed successfully! Progress: ${result.finalProgress.toFixed(1)}%`);
+      const progress = result.progress || result.finalProgress || 100;
+      alert(`Simulation completed successfully! Progress: ${progress.toFixed(1)}%`);
     } else {
       alert(`Simulation failed: ${result.completionReason}`);
     }
@@ -226,14 +241,10 @@ function App() {
       // Handle custom simulation controls
       switch (action) {
         case 'start':
-          if ((window as any).startCustomSimulation) {
-            (window as any).startCustomSimulation();
-          }
+          handleExecuteSimulation();
           break;
         case 'stop':
-          if ((window as any).stopCustomSimulation) {
-            (window as any).stopCustomSimulation();
-          }
+          customSimulationService.stopSimulation();
           setIsSimulationRunning(false);
           break;
         case 'pause':
@@ -265,7 +276,7 @@ function App() {
           break;
       }
     }
-  }, [currentMode, simulationIntegrationService]);
+  }, [currentMode, simulationIntegrationService, handleExecuteSimulation]);
 
   // Helper function to get the dynamic admin URL
   const getAdminURL = () => {
@@ -493,21 +504,7 @@ function App() {
             }}
           />
           
-          {/* Custom Simulation - Always render to expose global functions */}
-          <CustomSimulation 
-            ref={customSimulationRef}
-            isActive={currentPage === 'custom-simulation'}
-            simulationName={simulationName}
-            simulationGoal={simulationGoal}
-            sceneContext={{
-              sceneId: selectedModel.id,
-              availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
-              sceneType: selectedModel.name
-            }}
-            onAIMessage={handleAIMessage}
-            onMovementCommand={handleMovementCommand}
-            onSimulationComplete={handleSimulationComplete}
-          />
+          {/* Custom Simulation - Now handled by service directly */}
           
           {/* Mesh Tracker Overlay */}
           <MeshTracker 
