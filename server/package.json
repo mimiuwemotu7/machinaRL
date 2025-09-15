@@ -4,6 +4,7 @@
   "description": "AI server for 3D viewer dual AI system",
   "main": "index.js",
   "type": "module",
+  "private": true,
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
