@@ -1,0 +1,23 @@
+{
+  "name": "3d-viewer-ai-server",
+  "version": "1.0.0",
+  "description": "AI server for 3D viewer dual AI system",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "build": "echo 'Server build complete'",
+    "postinstall": "echo 'Server dependencies installed'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "firebase": "^10.7.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

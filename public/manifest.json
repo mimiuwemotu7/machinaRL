@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "machinaRL",
+  "name": "machinaRL - AI 3D Simulation Platform",
   "icons": [
     {
       "src": "favicon.ico",

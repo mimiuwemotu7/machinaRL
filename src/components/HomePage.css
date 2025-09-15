@@ -1,0 +1,455 @@
+/* HomePage Component Styles - Inspired by RunwayML */
+
+.homepage {
+  background: #000000;
+  color: #ffffff;
+  font-family: 'Didact Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Navigation */
+.homepage-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+/* Scrolled navbar state */
+.homepage-nav.scrolled {
+  background: #000000;
+  border-bottom: 1px solid #333333;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-brand h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #000000;
+  letter-spacing: -0.5px;
+  transition: color 0.3s ease;
+}
+
+/* Scrolled state text colors */
+.homepage-nav.scrolled .nav-brand h1 {
+  color: #ffffff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #666666;
+}
+
+/* Scrolled state nav links */
+.homepage-nav.scrolled .nav-link {
+  color: #ffffff;
+}
+
+.homepage-nav.scrolled .nav-link:hover {
+  color: #cccccc;
+}
+
+.get-started-btn {
+  background: transparent;
+  border: 1px solid #000000;
+  color: #000000;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.get-started-btn:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Scrolled state get started button */
+.homepage-nav.scrolled .get-started-btn {
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.homepage-nav.scrolled .get-started-btn:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+.admin-btn {
+  background: transparent;
+  border: 1px solid #666666;
+  color: #666666;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.admin-btn:hover {
+  background: #666666;
+  color: #ffffff;
+}
+
+/* Scrolled state admin button */
+.homepage-nav.scrolled .admin-btn {
+  border: 1px solid #cccccc;
+  color: #cccccc;
+}
+
+.homepage-nav.scrolled .admin-btn:hover {
+  background: #cccccc;
+  color: #000000;
+}
+
+/* Main Content */
+.homepage-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 40px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: auto;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: #cccccc;
+  margin: 0 0 20px 0;
+  font-weight: 400;
+}
+
+.hero-description {
+  font-size: 16px;
+  color: #aaaaaa;
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Homepage Viewer */
+.homepage-viewer {
+  width: 100%;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Experience Button */
+.experience-button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+
+.experience-button {
+  background: transparent;
+  border: 1px solid #000000;
+  color: #000000;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.experience-button:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+
+
+/* Core Features Section */
+.core-features-section {
+  padding: 80px 40px;
+  background: #000000;
+}
+
+.core-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .core-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .core-features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.core-feature-card {
+  text-align: center;
+  padding: 32px 24px;
+  border-radius: 12px;
+  background: #111111;
+  border: 1px solid #333333;
+  transition: all 0.3s ease;
+}
+
+.core-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+.core-feature-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.core-feature-card p {
+  font-size: 14px;
+  color: #aaaaaa;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Technology Section */
+.technology-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 80px 0 60px;
+  text-align: center;
+}
+
+.tech-content h3 {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.tech-content p {
+  font-size: 16px;
+  color: #aaaaaa;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Features Section */
+.features-section {
+  width: 100%;
+  max-width: 1000px;
+  margin: 60px 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.feature-card {
+  text-align: left;
+  padding: 32px;
+  background: #111111;
+  border: 1px solid #333333;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: #e0e0e0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.feature-icon-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: #ffffff;
+}
+
+.feature-card h4 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: #aaaaaa;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Footer */
+.homepage-footer {
+  padding: 40px;
+  text-align: center;
+  border-top: 1px solid #333333;
+  background: #000000;
+}
+
+.homepage-footer p {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.footer-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .homepage-nav {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .nav-links {
+    gap: 20px;
+  }
+
+  .nav-brand h1 {
+    font-size: 20px;
+  }
+
+  .homepage-main {
+    padding: 40px 20px 20px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+
+  .tech-content h3 {
+    font-size: 24px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .homepage-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .get-started-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+}
