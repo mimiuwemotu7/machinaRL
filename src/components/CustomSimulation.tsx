@@ -16,6 +16,7 @@ interface CustomSimulationProps {
   onAIMessage: (message: string, agentId: 'p1' | 'p2' | 'system') => void;
   onMovementCommand: (command: string, agentId: 'p1' | 'p2') => void;
   onSimulationComplete: (result: SimulationResult) => void;
+  ref?: React.Ref<any>;
 }
 
 interface SimulationResult {
@@ -34,7 +35,7 @@ interface AgentStatus {
   progress: number;
 }
 
-const CustomSimulation: React.FC<CustomSimulationProps> = ({ 
+const CustomSimulation = React.forwardRef<any, CustomSimulationProps>(({ 
   isActive, 
   simulationName,
   simulationGoal,
@@ -42,7 +43,7 @@ const CustomSimulation: React.FC<CustomSimulationProps> = ({
   onAIMessage, 
   onMovementCommand,
   onSimulationComplete
-}) => {
+}, ref) => {
   console.log('🎯 CustomSimulation component rendered with props:', { isActive, simulationName, simulationGoal });
   
   // Services
@@ -526,18 +527,34 @@ Please analyze the current situation and provide your next action.`;
     };
   }, [isActive, isRunning]);
 
+  // Expose methods via ref
+  React.useImperativeHandle(ref, () => ({
+    startSimulation,
+    stopSimulation,
+    isRunning
+  }), [startSimulation, stopSimulation, isRunning]);
+
   // Expose control functions globally
   useEffect(() => {
     console.log('🌐 [CUSTOM SIM] Exposing control functions globally');
+    console.log('🌐 [CUSTOM SIM] isActive:', isActive);
+    console.log('🌐 [CUSTOM SIM] simulationName:', simulationName);
+    console.log('🌐 [CUSTOM SIM] simulationGoal:', simulationGoal);
     (window as any).startCustomSimulation = startSimulation;
     (window as any).stopCustomSimulation = stopSimulation;
+    
+    // Verify functions are set
+    console.log('🌐 [CUSTOM SIM] Functions set:', {
+      startCustomSimulation: typeof (window as any).startCustomSimulation,
+      stopCustomSimulation: typeof (window as any).stopCustomSimulation
+    });
     
     return () => {
       console.log('🌐 [CUSTOM SIM] Cleaning up control functions');
       delete (window as any).startCustomSimulation;
       delete (window as any).stopCustomSimulation;
     };
-  }, [startSimulation, stopSimulation]);
+  }, [startSimulation, stopSimulation, isActive, simulationName, simulationGoal]);
 
   // Don't render anything - this is a background service
   return null;

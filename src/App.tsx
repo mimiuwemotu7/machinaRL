@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import './App.css';
 import './components/HomePage.css';
 import UnifiedViewer from './components/UnifiedViewer';
@@ -85,6 +85,7 @@ function App() {
   const [simulationGoal, setSimulationGoal] = useState('');
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [simulationIntegrationService] = useState(() => getSimulationIntegrationService());
+  const customSimulationRef = useRef<any>(null);
 
   // Simulation event handlers
   useEffect(() => {
@@ -174,13 +175,30 @@ function App() {
 
     try {
       console.log('🚀 Starting custom simulation:', simulationName);
+      console.log('🔍 Checking for startCustomSimulation function:', typeof (window as any).startCustomSimulation);
+      console.log('🔍 Current page:', currentPage);
+      console.log('🔍 Current mode:', currentMode);
       setIsSimulationRunning(true);
 
       // Start the custom simulation using the global function
       if ((window as any).startCustomSimulation) {
         (window as any).startCustomSimulation();
+      } else if (customSimulationRef.current) {
+        // Fallback: use ref to call method directly
+        console.log('⚠️ Global function not available, using ref...');
+        customSimulationRef.current.startSimulation();
       } else {
-        throw new Error('Custom simulation not available');
+        // Final fallback: try again after a short delay
+        console.log('⚠️ Both global function and ref not available, trying again...');
+        setTimeout(() => {
+          if ((window as any).startCustomSimulation) {
+            (window as any).startCustomSimulation();
+          } else if (customSimulationRef.current) {
+            customSimulationRef.current.startSimulation();
+          } else {
+            throw new Error('Custom simulation not available - neither global function nor ref found');
+          }
+        }, 100);
       }
 
     } catch (error) {
@@ -188,7 +206,7 @@ function App() {
       alert(`Simulation failed: ${error}`);
       setIsSimulationRunning(false);
     }
-  }, [simulationName, simulationGoal]);
+  }, [simulationName, simulationGoal, currentPage, currentMode]);
 
   // Handle simulation completion
   const handleSimulationComplete = useCallback((result: any) => {
@@ -475,22 +493,21 @@ function App() {
             }}
           />
           
-          {/* Custom Simulation */}
-          {(currentMode as string) === 'custom' && (
-            <CustomSimulation 
-              isActive={true}
-              simulationName={simulationName}
-              simulationGoal={simulationGoal}
-              sceneContext={{
-                sceneId: selectedModel.id,
-                availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
-                sceneType: selectedModel.name
-              }}
-              onAIMessage={handleAIMessage}
-              onMovementCommand={handleMovementCommand}
-              onSimulationComplete={handleSimulationComplete}
-            />
-          )}
+          {/* Custom Simulation - Always render to expose global functions */}
+          <CustomSimulation 
+            ref={customSimulationRef}
+            isActive={currentPage === 'custom-simulation'}
+            simulationName={simulationName}
+            simulationGoal={simulationGoal}
+            sceneContext={{
+              sceneId: selectedModel.id,
+              availableMeshes: viewerState.screenMeshes.map((mesh: any) => mesh.name),
+              sceneType: selectedModel.name
+            }}
+            onAIMessage={handleAIMessage}
+            onMovementCommand={handleMovementCommand}
+            onSimulationComplete={handleSimulationComplete}
+          />
           
           {/* Mesh Tracker Overlay */}
           <MeshTracker 
