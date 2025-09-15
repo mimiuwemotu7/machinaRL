@@ -558,6 +558,6 @@ Please analyze the current situation and provide your next action.`;
 
   // Don't render anything - this is a background service
   return null;
-};
+});
 
 export default CustomSimulation;
