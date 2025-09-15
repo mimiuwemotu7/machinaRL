@@ -28,7 +28,7 @@ app.use('/api/ai', (req, res) => {
   const http = require('http');
   const options = {
     hostname: 'localhost',
-    port: 3001,
+    port: 8080,
     path: req.path,
     method: req.method,
     headers: req.headers
@@ -77,7 +77,7 @@ const startBackend = () => {
   const backend = spawn('node', ['--experimental-modules', 'server/index.js'], {
     cwd: __dirname,
     stdio: 'inherit',
-    env: { ...process.env, PORT: 3001, NODE_ENV: 'production' }
+    env: { ...process.env, PORT: 8080, NODE_ENV: 'production' }
   });
   
   backend.on('error', (err) => {
