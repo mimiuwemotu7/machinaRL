@@ -94,7 +94,35 @@ const UnifiedViewer: React.FC<UnifiedViewerProps> = ({
     (window as any).Vector3 = Vector3;
     (window as any).Matrix = (window as any).Matrix || require('@babylonjs/core').Matrix;
     
-    // console.log('🌐 [UnifiedViewer] Exposed physics objects to global scope for AI code execution');
+    // Add test function for AI movement commands
+    (window as any).testAIMovement = (command: string) => {
+      console.log('🧪 Testing AI movement command:', command);
+      try {
+        if (command.includes('blue cube') || command.includes('p1')) {
+          if (cubePhysics && cubePhysics.body) {
+            const currentVelocity = cubePhysics.body.getLinearVelocity();
+            const newVelocity = new Vector3(currentVelocity.x, currentVelocity.y, -3);
+            cubePhysics.body.setLinearVelocity(newVelocity);
+            console.log('✅ P1 movement executed');
+            return true;
+          }
+        } else if (command.includes('red cube') || command.includes('p2')) {
+          if (p2CubePhysics && p2CubePhysics.body) {
+            const currentVelocity = p2CubePhysics.body.getLinearVelocity();
+            const newVelocity = new Vector3(3, currentVelocity.y, currentVelocity.z);
+            p2CubePhysics.body.setLinearVelocity(newVelocity);
+            console.log('✅ P2 movement executed');
+            return true;
+          }
+        }
+        return false;
+      } catch (error) {
+        console.error('❌ AI movement test failed:', error);
+        return false;
+      }
+    };
+    
+    console.log('🌐 [UnifiedViewer] Exposed physics objects to global scope for AI code execution');
   }, [cubePhysics, p2CubePhysics, originalPositions, sceneRef]);
 
   // Visual refs
@@ -183,7 +211,7 @@ const UnifiedViewer: React.FC<UnifiedViewerProps> = ({
             if (value && value.cube && value.direction) {
               // Handle cube movement
               const targetCube = value.cube === 'p1' ? cubePhysics : p2CubePhysics;
-              if (targetCube && targetCube.body && targetCube.body.hpBodyId) {
+              if (targetCube && targetCube.body) {
                 const moveSpeed = 3;
                 const currentVelocity = targetCube.body.getLinearVelocity();
                 let newVelocity = currentVelocity.clone();
@@ -1408,6 +1436,8 @@ const UnifiedViewer: React.FC<UnifiedViewerProps> = ({
           freeCam={freeCam}
           freeSpeed={freeSpeed}
         />
+        
+        {/* Movement Debug Component */}
         
         {status && (
           <div style={{ 

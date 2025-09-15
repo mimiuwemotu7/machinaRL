@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Movement Test</title>
+</head>
+<body>
+    <h1>Debug Movement Test</h1>
+    <button onclick="testMovement()">Test Movement</button>
+    <div id="output"></div>
+
+    <script>
+        function testMovement() {
+            const output = document.getElementById('output');
+            
+            // Check if global variables exist
+            output.innerHTML = '<h3>Global Variables Check:</h3>';
+            output.innerHTML += `window.cubePhysics: ${window.cubePhysics ? 'EXISTS' : 'MISSING'}<br>`;
+            output.innerHTML += `window.p2CubePhysics: ${window.p2CubePhysics ? 'EXISTS' : 'MISSING'}<br>`;
+            output.innerHTML += `window.Vector3: ${window.Vector3 ? 'EXISTS' : 'MISSING'}<br>`;
+            output.innerHTML += `window.currentScene: ${window.currentScene ? 'EXISTS' : 'MISSING'}<br>`;
+            
+            // Test simple movement code
+            if (window.cubePhysics && window.cubePhysics.body && window.Vector3) {
+                try {
+                    const currentVelocity = window.cubePhysics.body.getLinearVelocity();
+                    const newVelocity = new window.Vector3(currentVelocity.x, currentVelocity.y, -3);
+                    window.cubePhysics.body.setLinearVelocity(newVelocity);
+                    output.innerHTML += '<br><strong>✅ Movement code executed successfully!</strong>';
+                } catch (error) {
+                    output.innerHTML += `<br><strong>❌ Movement code failed:</strong> ${error.message}`;
+                }
+            } else {
+                output.innerHTML += '<br><strong>❌ Required objects not available for movement</strong>';
+            }
+        }
+    </script>
+</body>
+</html>

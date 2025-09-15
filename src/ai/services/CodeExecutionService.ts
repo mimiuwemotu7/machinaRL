@@ -154,11 +154,20 @@ export class CodeExecutionService {
       }
     }
 
-    // Add context variables
+    // Add context variables - expose them directly for easier access
+    safeContext.cubePhysics = context.cubePhysics;
+    safeContext.p2CubePhysics = context.p2CubePhysics;
+    safeContext.originalPositions = context.originalPositions;
+    safeContext.Vector3 = (globalThis as any).Vector3;
+    safeContext.Matrix = (globalThis as any).Matrix;
+
+    // Also add them under window for compatibility
     safeContext.window = {
       cubePhysics: context.cubePhysics,
       p2CubePhysics: context.p2CubePhysics,
-      originalPositions: context.originalPositions
+      originalPositions: context.originalPositions,
+      Vector3: (globalThis as any).Vector3,
+      Matrix: (globalThis as any).Matrix
     };
 
     // Add scene context if available

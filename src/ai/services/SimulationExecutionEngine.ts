@@ -65,8 +65,8 @@ export class SimulationExecutionEngine {
     this.apiConfig = getAPIConfig();
 
     this.config = {
-      maxDuration: 300, // 5 minutes
-      maxSteps: 1000,
+      maxDuration: 0, // No timeout - let simulation run until goals are achieved
+      maxSteps: 0, // No step limit
       decisionInterval: 3000, // 3 seconds
       updateInterval: 1000, // 1 second
       enableLogging: true,

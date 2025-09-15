@@ -115,8 +115,8 @@ export class SimulationStateManager {
 
   constructor(config?: Partial<SimulationConfig>) {
     this.config = {
-      maxDuration: 300, // 5 minutes
-      maxSteps: 1000,
+      maxDuration: 0, // No timeout - let simulation run until goals are achieved
+      maxSteps: 0, // No step limit
       timeoutThreshold: 30,
       stuckThreshold: 5,
       errorThreshold: 10,
@@ -386,21 +386,6 @@ export class SimulationStateManager {
       return false;
     }
 
-    // Check time limit
-    const elapsed = (Date.now() - this.state.startTime) / 1000;
-    if (elapsed >= this.config.maxDuration) {
-      this.recordError('timeout', 'Simulation exceeded maximum duration', 'high');
-      this.stopSimulation('failed');
-      return false;
-    }
-
-    // Check step limit
-    if (this.state.executionHistory.length >= this.config.maxSteps) {
-      this.recordError('system', 'Simulation exceeded maximum steps', 'high');
-      this.stopSimulation('failed');
-      return false;
-    }
-
     // Check if all agents are stuck or in error
     const agentsStuck = Object.values(this.state.agentStates).every(
       agent => agent.status === 'stuck' || agent.status === 'error'
@@ -440,7 +425,7 @@ export class SimulationStateManager {
     // Update time
     const elapsed = (Date.now() - this.state.startTime) / 1000;
     this.state.environmentState.timeElapsed = elapsed;
-    this.state.environmentState.timeRemaining = Math.max(0, this.config.maxDuration - elapsed);
+    this.state.environmentState.timeRemaining = 0; // No time limit
 
     // Update progress
     this.calculateProgress();

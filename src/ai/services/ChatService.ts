@@ -123,20 +123,12 @@ The movement code should still use the actual directions (right, left, forward, 
     conversationId: string = 'default',
     context?: ChatContext
   ): Promise<AIResponse<ChatResponse>> {
-    console.log('🚀 [ChatService] processChatMessage called', {
-      message: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-      conversationId,
-      context
-    });
 
     try {
       // Get or create conversation
       let conversation = this.conversations.get(conversationId);
       if (!conversation) {
-        console.log('📝 [ChatService] Creating new conversation:', conversationId);
         conversation = this.createConversation(conversationId);
-      } else {
-        console.log('📖 [ChatService] Using existing conversation:', conversationId, 'with', conversation.messages.length, 'messages');
       }
 
       // Create user message
@@ -149,23 +141,13 @@ The movement code should still use the actual directions (right, left, forward, 
         metadata: { context }
       };
 
-      console.log('👤 [ChatService] Created user message:', {
-        id: userMessage.id,
-        content: userMessage.content.substring(0, 50) + (userMessage.content.length > 50 ? '...' : ''),
-        timestamp: new Date(userMessage.timestamp).toISOString()
-      });
 
       // Add user message to conversation
       conversation.messages.push(userMessage);
       conversation.updatedAt = Date.now();
 
       // Generate AI response
-      console.log('🤖 [ChatService] Generating AI response...');
       const aiResponse = await this.generateResponse(conversation, context);
-      console.log('✅ [ChatService] AI response generated:', {
-        content: aiResponse.content.substring(0, 100) + (aiResponse.content.length > 100 ? '...' : ''),
-        confidence: aiResponse.confidence
-      });
 
       // Create assistant message
       const assistantMessage: ChatMessage = {
@@ -180,11 +162,6 @@ The movement code should still use the actual directions (right, left, forward, 
         }
       };
 
-      console.log('🤖 [ChatService] Created assistant message:', {
-        id: assistantMessage.id,
-        content: assistantMessage.content.substring(0, 50) + (assistantMessage.content.length > 50 ? '...' : ''),
-        confidence: assistantMessage.metadata?.confidence
-      });
 
       // Add assistant message to conversation
       conversation.messages.push(assistantMessage);
@@ -222,13 +199,10 @@ The movement code should still use the actual directions (right, left, forward, 
     conversation: ChatConversation, 
     context?: ChatContext
   ): Promise<{ content: string; confidence: number }> {
-    console.log('🔧 [ChatService] Building response prompt...');
-    
     const currentMessage = conversation.messages[conversation.messages.length - 1]?.content;
     
     // Check if this is a movement command
     if (this.isMovementCommand(currentMessage)) {
-      console.log('🎮 [ChatService] Detected movement command, generating code...');
       return await this.handleMovementCommand(currentMessage, context);
     }
     
@@ -592,36 +566,40 @@ Please provide a helpful response:`;
       
       // Extract the clean message (everything before the code block)
       const cleanMessage = openaiResponse.content.replace(/```javascript[\s\S]*?```/g, '').trim();
-      console.log('✅ [ChatService] OpenAI generated clean message:', cleanMessage);
-      console.log('✅ [ChatService] OpenAI generated movement code:', generatedCode.substring(0, 100) + '...');
+      // Execute movement using the unified viewer control (same as live mode)
       
-      // Execute the generated code
-      console.log('⚡ [ChatService] Executing OpenAI-generated movement code...');
-      const executionService = getCodeExecutionService();
+      // Parse the generated code to extract movement commands
+      let cubeId = 'p1'; // default
+      let direction = 'forward'; // default
       
-      // Create execution context with current scene state
-      const executionContext = {
-        scene: (window as any).currentScene,
-        cubePhysics: (window as any).cubePhysics,
-        p2CubePhysics: (window as any).p2CubePhysics,
-        originalPositions: (window as any).originalPositions
-      };
-
-      const executionResult = await executionService.executeCodeSafely(generatedCode, executionContext);
-      
-      if (executionResult.success) {
-        console.log('✅ [ChatService] OpenAI movement code executed successfully');
-        return {
-          content: cleanMessage || `🎮 Movement command executed successfully!`,
-          confidence: 0.95
-        };
-      } else {
-        console.log('❌ [ChatService] OpenAI movement code execution failed:', executionResult.error);
-        return {
-          content: `❌ ${cleanMessage || 'Movement command failed'}: ${executionResult.error}`,
-          confidence: 0.7
-        };
+      if (generatedCode.includes('p2CubePhysics') || generatedCode.includes('red cube')) {
+        cubeId = 'p2';
       }
+      
+      if (generatedCode.includes('backward') || generatedCode.includes('positive Z')) {
+        direction = 'backward';
+      } else if (generatedCode.includes('left') || generatedCode.includes('negative X')) {
+        direction = 'left';
+      } else if (generatedCode.includes('right') || generatedCode.includes('positive X')) {
+        direction = 'right';
+      } else if (generatedCode.includes('up') || generatedCode.includes('positive Y')) {
+        direction = 'up';
+      } else if (generatedCode.includes('down') || generatedCode.includes('negative Y')) {
+        direction = 'down';
+      }
+      
+      // Use the same movement system as live mode
+      if ((window as any).handleUnifiedViewerControl) {
+        (window as any).handleUnifiedViewerControl('moveCube', { 
+          cube: cubeId, 
+          direction: direction 
+        });
+      }
+      
+      return {
+        content: cleanMessage || `🎮 Movement command executed successfully!`,
+        confidence: 0.95
+      };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('❌ [ChatService] OpenAI movement command handling failed:', errorMessage);

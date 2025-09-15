@@ -1,6 +1,23 @@
 // Real AI Service - Integrates the actual AI system from frontend
-import { database } from '../config/firebase.js';
-import { ref, push, set } from 'firebase/database';
+let database = null;
+let ref = null;
+let push = null;
+let set = null;
+
+// Initialize Firebase asynchronously
+(async () => {
+  try {
+    const firebaseConfig = await import('../config/firebase.js');
+    const firebaseDB = await import('firebase/database');
+    database = firebaseConfig.database;
+    ref = firebaseDB.ref;
+    push = firebaseDB.push;
+    set = firebaseDB.set;
+    console.log('✅ Firebase initialized successfully');
+  } catch (error) {
+    console.warn('⚠️ Firebase not available, using mock mode:', error.message);
+  }
+})();
 
 // We'll need to convert the TypeScript files to JavaScript
 // For now, let's create a simplified version that mimics the real AI behavior

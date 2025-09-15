@@ -428,15 +428,8 @@ IMPORTANT:
     const constraints: SimulationConstraint[] = [];
     const lowerDesc = description.toLowerCase();
 
-    // Time constraints
-    if (lowerDesc.includes('quickly') || lowerDesc.includes('fast') || lowerDesc.includes('time limit')) {
-      constraints.push({
-        type: 'time',
-        description: 'Complete within time limit',
-        parameters: { maxDuration: 60 },
-        strict: true
-      });
-    }
+    // Time constraints - removed automatic time limits
+    // Simulations now run until goals are achieved without time constraints
 
     // Safety constraints
     if (lowerDesc.includes('safe') || lowerDesc.includes('careful') || lowerDesc.includes('avoid')) {

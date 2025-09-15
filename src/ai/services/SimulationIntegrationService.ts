@@ -108,7 +108,7 @@ export class SimulationIntegrationService {
     try {
       // Configure execution engine
       this.executionEngine.updateConfig({
-        maxDuration: this.config.maxSimulationTime,
+        maxDuration: 0, // No timeout - let simulation run until goals are achieved
         autoStart: this.config.autoStart
       });
 

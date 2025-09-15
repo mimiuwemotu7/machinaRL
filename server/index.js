@@ -26,8 +26,27 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../build')));
 }
 
-// Initialize Dual AI Engine
-const dualAIEngine = new DualAIEngine();
+// Initialize Dual AI Engine with error handling
+let dualAIEngine = null;
+
+// Initialize AI Engine asynchronously
+(async () => {
+  try {
+    const { DualAIEngine } = await import('./services/dualAIEngine.js');
+    dualAIEngine = new DualAIEngine();
+    console.log('✅ DualAIEngine initialized successfully');
+  } catch (error) {
+    console.warn('⚠️ DualAIEngine not available, using simplified mode:', error.message);
+    dualAIEngine = {
+      getStatus: () => ({ 
+        running: false, 
+        message: 'AI Engine in simplified mode',
+        timestamp: Date.now()
+      }),
+      stop: () => console.log('AI Engine stopped')
+    };
+  }
+})();
 
 // Routes
 app.get('/', (req, res) => {
